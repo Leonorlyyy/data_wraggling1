@@ -6,7 +6,8 @@ output: github_document
 
 ```{r serup, echo=FALSE, message=FALSE}
 library(tidyverse)
-library(readr)
+library(readxl)
+library(haven)
 ```
 
 This document will show how to import data.
@@ -45,10 +46,70 @@ pups_df = janitor::clean_names(pups_df)
 pups_df = read_csv("/Users/leyangrui/Desktop/Columbia/Data Science/data_wraggling1/data/FAS_pups.csv")
 # --> very fragile, does not work if you move files around
 ```
+### Look at read_csv options
 
+col names and skipping rows
 
+```{r}
+litters_df = 
+  read_csv(
+    file = "data/FAS_litters.csv",
+    #skip = 2
+  )
+```
 
+Missing data
+and data that interupts data type
 
+```{r}
+litters_df = 
+  read_csv(
+    file = "data/FAS_litters.csv",
+    na = c("NA", "", ".")
+  )
+
+litters_df = janitor::clean_names(litters_df)
+
+gd0_weight = pull(litters_df, gd0_weight)
+mean(gd0_weight, na.rm = TRUE)
+```
+
+What if we want to code 'group' as a factor variable?
+
+```{r}
+litters_df = 
+  read_csv(
+    file = "data/FAS_litters.csv",
+    na = c("NA", "", "."),
+    col_types = cols(
+      Group = col_factor()
+    )
+  )
+```
+
+### Import an excel file
+
+Import MLB 2011 summary data
+
+```{r}
+mlb_df = read_excel("data/mlb11.xlsx", sheet = "mlb11")
+```
+
+### Import SAS data
+
+```{r}
+pulse_df = read_sas("data/public_pulse_data.sas7bdat")
+```
+
+## Never use read.csv()
+
+```{r}
+# litters_df = read.csv("data/FAS_litters.csv")
+```
+read in without tibble reminders
+
+## Never use $ to pull out variables
+Do not take variables out from a data frame.
 
 
 
