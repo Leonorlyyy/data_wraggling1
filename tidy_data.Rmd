@@ -33,12 +33,78 @@ pulse_tidy_df =
   mutate(
     visit = replace(visit, visit == "bl", "00m"),
     visit = factor(visit)
-  )
+    ) |>
+  relocate(id, visit)
 
 ```
 
+Do one more example:
 
+```{r}
+litters_df = read_csv("data/FAS_litters.csv", na = c("NA", ".", "")) |>
+  janitor::clean_names() |>
+  pivot_longer(
+    cols = gd0_weight:gd18_weight,
+    names_to = "gd",
+    values_to = "weight"
+  ) |>
+  mutate(
+    gd = case_match(
+      gd, 
+      "gd0_weight" ~ 0,
+      "gd18_weight" ~ 18
+    )
+  )
+```
 
+## Pivot wider
+
+```{r}
+analysis_result = 
+  tibble(
+    group = c("treatment", "treatment", "placebo", "placebo"),
+    time = c("pre", "post", "pre", "post"),
+    mean = c(4, 8, 3.5, 4)
+  )
+```
+
+Pivot wider for human readability
+
+```{r}
+pivot_wider(
+  analysis_result,
+  names_from = "time",
+  values_from = "mean"
+) |>
+  knitr::kable()
+```
+
+## Bind tables
+
+```{r}
+fellowship_ring = 
+  read_excel("data/LotR_Words.xlsx", range = "B3:D6") %>% 
+  mutate(movie = "fellowship_ring")
+
+two_towers = 
+  read_excel("data/LotR_Words.xlsx", range = "F3:H6") %>% 
+  mutate(movie = "two_towers")
+
+return_ring = 
+  read_excel("data/LotR_Words.xlsx", range = "J3:L6") %>% 
+  mutate(movie = "return_ring")
+
+lotr_tidy = 
+  bind_rows(fellowship_ring, two_towers, return_ring) %>%
+  janitor::clean_names() %>%
+  pivot_longer(
+    cols = female:male,
+    names_to = "gender",
+    values_to = "words"
+  ) %>%
+  relocate(movie) %>%
+  mutate(race = str_to_lower(race))
+```
 
 
 
